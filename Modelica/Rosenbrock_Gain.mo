@@ -46,7 +46,8 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-150, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
   Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200, startTime = 100, width = 50)  annotation (
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Interfaces.RealOutput y_1
       annotation (Placement(transformation(extent={{202,40},{222,60}})));
@@ -64,7 +65,7 @@ package Rosenbrock_Gain
     connect(r_11.y, e_11.u1) annotation (
       Line(points={{-139,50},{-130,50},{-130,50},{-128,50}},          color = {0, 0, 127}));
     connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-130,-110},{-130,-110},{-128,-110}},          color = {0, 0, 127}));
+      Line(points={{-139,-110},{-130,-110},{-128,-110}},                      color = {0, 0, 127}));
     connect(IE_2.u, e_22.y) annotation (
       Line(points={{-138,-50},{-100,-50},{-100,-110},{-111,-110},{-111,-110}},            color = {0, 0, 127}));
     connect(IE_1.u, e_11.y) annotation (
@@ -185,7 +186,8 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-130, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
   Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200, startTime = 100, width = 50)  annotation (
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Gain K_11
       annotation (Placement(transformation(extent={{66,40},{86,60}})));
@@ -201,7 +203,7 @@ package Rosenbrock_Gain
       annotation (Placement(transformation(extent={{-130,-154},{-110,-134}})));
   equation
     connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-130,-110},{-130,-110},{-128,-110}},          color = {0, 0, 127}));
+      Line(points={{-139,-110},{-130,-110},{-128,-110}},                      color = {0, 0, 127}));
     connect(r_11.y, e_11.u1) annotation (
       Line(points={{-139,50},{-128,50},{-128,50},{-128,50}},          color = {0, 0, 127}));
     connect(IE_2.u, e_22.y) annotation (
@@ -328,7 +330,8 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-130, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
   Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, startTime = 0, width = 50)  annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200, startTime = 100, width = 50)  annotation (
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Gain K_11(k=4.3)
       annotation (Placement(transformation(extent={{76,40},{96,60}})));
@@ -344,7 +347,7 @@ package Rosenbrock_Gain
       annotation (Placement(transformation(extent={{-164,-170},{-144,-150}})));
   equation
     connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-128,-110},{-128,-110},{-128,-110}},          color = {0, 0, 127}));
+      Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
     connect(r_11.y, e_11.u1) annotation (
       Line(points={{-139,50},{-128,50},{-128,50},{-128,50},{-128,50}},            color = {0, 0, 127}));
     connect(IE_1.u, e_11.y) annotation (
@@ -471,7 +474,8 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-150, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
   Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200, startTime = 100, width = 50)  annotation (
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Gain K_11(k=1)
       annotation (Placement(transformation(extent={{100,40},{120,60}})));
@@ -487,7 +491,7 @@ package Rosenbrock_Gain
       annotation (Placement(transformation(extent={{-266,-40},{-246,-20}})));
   equation
     connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-128,-110},{-128,-110},{-128,-110}},          color = {0, 0, 127}));
+      Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
     connect(r_11.y, e_11.u1) annotation (
       Line(points={{-139,50},{-128,50},{-128,50},{-128,50}},          color = {0, 0, 127}));
     connect(IE_2.u, e_22.y) annotation (
@@ -592,7 +596,8 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-150, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
   Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200, startTime = 100, width = 50)  annotation (
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Gain K_11(k=6.8)
       annotation (Placement(transformation(extent={{0,40},{20,60}})));
@@ -608,7 +613,7 @@ package Rosenbrock_Gain
       annotation (Placement(transformation(extent={{-120,-180},{-100,-160}})));
   equation
     connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-128,-110},{-128,-110},{-128,-110}},          color = {0, 0, 127}));
+      Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
     connect(r_11.y, e_11.u1) annotation (
       Line(points={{-139,50},{-128,50},{-128,50},{-128,50}},          color = {0, 0, 127}));
     connect(G_22.y, e_22.u2) annotation (

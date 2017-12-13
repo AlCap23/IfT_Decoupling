@@ -131,7 +131,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-10, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end Ideal;
 
@@ -292,7 +291,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-10, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end Decentralized;
 
@@ -452,7 +450,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-10, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end Static_Decoupling;
 
@@ -517,9 +514,9 @@ package Experimental_Gain
       Placement(visible = true, transformation(origin = {30, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Nonlinear.FixedDelay LD_21(delayTime = 0)  annotation (
       Placement(visible = true, transformation(origin = {30, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Math.Gain K_11
+    Modelica.Blocks.Math.Gain K_11(k=1)
       annotation (Placement(transformation(extent={{80,40},{100,60}})));
-    Modelica.Blocks.Math.Gain K_22
+    Modelica.Blocks.Math.Gain K_22(k=1)
       annotation (Placement(transformation(extent={{80,-122},{100,-102}})));
     Modelica.Blocks.Interfaces.RealOutput y_1
       annotation (Placement(transformation(extent={{276,38},{296,58}})));
@@ -603,7 +600,7 @@ package Experimental_Gain
     connect(u_1, e_11.u1) annotation (Line(points={{-110,78},{-128,78},{-128,50}},
           color={0,0,127}));
     connect(K_11.u, u_11.y)
-      annotation (Line(points={{78,50},{53,50},{53,50}}, color={0,0,127}));
+      annotation (Line(points={{78,50},{53,50}}, color={0,0,127}));
     connect(K_11.y, G_21.u) annotation (Line(points={{101,50},{140,50},{140,10},
             {150,10}}, color={0,0,127}));
     connect(K_22.u, u_22.y) annotation (Line(points={{78,-112},{70,-112},{70,
@@ -619,7 +616,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-10, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end Dynamic_Decoupling;
 
@@ -788,7 +784,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-10, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end CentralizedPID;
 
@@ -850,9 +845,9 @@ package Experimental_Gain
       Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 2400, width = 50) annotation (
       Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Math.Gain K_11
+    Modelica.Blocks.Math.Gain K_11(k=1)
       annotation (Placement(transformation(extent={{20,38},{40,58}})));
-    Modelica.Blocks.Math.Gain K_22
+    Modelica.Blocks.Math.Gain K_22(k=1)
       annotation (Placement(transformation(extent={{22,-120},{42,-100}})));
     Modelica.Blocks.Interfaces.RealOutput y_1
       annotation (Placement(transformation(extent={{210,-22},{230,-2}})));
@@ -953,7 +948,6 @@ package Experimental_Gain
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 4800, Tolerance = 1e-8, Interval = 1),
       Icon(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)),
-
       Diagram(coordinateSystem(extent={{-500,-500},{500,500}}, initialScale=0.1)));
   end Inverse_Decoupling;
 
