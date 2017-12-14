@@ -1,12 +1,14 @@
 # coding: utf8
 """
 	Contains controller design rules for AMIGO;
-	Contains the order reduction techniques;
+	Contains the order reduction techniques and identification;
 	Contains functions for simulation via dymola -> DYMOLA INTERFACE IS NEEDED.
 """
 
 # Import the python package numpy
 import numpy as np 
+# Import integration from scipy
+import scipy.integrate as integrate
 # Import the dymola interface for simulation
 from dymola.dymola_interface import DymolaInterface 
 
@@ -131,9 +133,11 @@ def AMIGO_DETUNE(K,T,L, Controller, KP, MS = 1.4, structure = 'PI'):
 	return [KP,KI,KD0]
 
 
-def DECENTAL_CONTROLLER(K,T,L, structure = "PI", pairing = np.empty):
+def DECENTRAL_CONTROLLER(K,T,L, structure = "PI", pairing = np.empty):
 	""" 
-	Computes a decentralized controller for a given first order plus time delay system. Uses the AMIGO algorithm as given by Astroem et.al.
+	Computes a decentralized controller for a given first order plus time delay system. 
+
+	Uses the AMIGO algorithm as given by Astroem et.al., Advanced PID Control
 
 	Inputs:
 	K : List of Lists of Floats or Numpy Array, Gain of the FOTD model.
@@ -215,8 +219,9 @@ def DECENTAL_CONTROLLER(K,T,L, structure = "PI", pairing = np.empty):
 		return [KP, KI, KD]
 
 
+
 #########################################################################################
-# Model Reduction
+# Model Reduction and Identification
 #########################################################################################
 
 
@@ -271,15 +276,166 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	return T, L_D
 
 
+def FOTD_AREA_IDENTIFICATION(y, u , time, u_0 = 0.0,  derivativeCompensation = False):
+	"""
+	Identifies a first order plus time delay model from a given step response.
+	Uses area based / integration methods as can be derived via the step response, e.g. given in
 
+	A new method to estimate a first-order plus time delay model from step response, Fedele, 2009
 
+	Modification have been made to approximate the model for strong differential behaviour.
 
+	Inputs:
+	y : List of floats or numpy array, output array of the step experiment.
+	u : Float, Amplitude of step
+	time : List of floats or numpy array, array of time values.
+
+	Optional:
+	u_0 : Float, Initial value for input. Default is 0.0
+	derivativeCompensation: Boolean, compensates strong derivative action. Default is False.
+
+	Returns:
+	K : Float, Gain of the FOPTD model
+	T : Float, Lag of the FOPTD model
+	L : Float, Delay of the FOPTD model
+	"""
+
+	# Check, if the values are numpy array
+	if type(y) != np.ndarray:
+		y = np.array(y)
+	if type(time) != np.ndarray:
+		time = np.array(time)
+
+	# Check if all arrays have the same size:
+	if (y.shape != time.shape):
+		raise Exception("Size of the arrays is not equal. Please check the provided arrays.")
+
+	# Check if u_0 is float
+	if type(u_0) != float:
+		raise Exception("u_0 has to be of type float.")
+	# Check if u is float
+	if type(u) != float:
+		raise Exception("u has to be of type float.")
+	# Check, if derivative Compensation is boolean
+	if type(derivativeCompensation) != bool:
+		raise Exception("derivativeCompensation has to be of type bool.")
+
+	# Check, if output is sufficiently different
+	if np.abs(y[0]-y[-1]) < 1e-3*np.max(y):
+		raise Exception("Nearly no change of output. Sufficient excitation is needed.")
+	# Check, if input is sufficiently excitated
+	if np.abs(np.max(u) - u_0) < 1e-3*np.max(u):
+		raise Exception("Nearly no excitation of input. Sufficient excitation is needed.")
+
+	# Truncate the arrays for 98 % of final value. Compensates integrative behaviour.
+	time = time[np.where(abs(y) <= 0.98*abs(y)[-1])]
+	y = y[np.where(abs(y) <= 0.98*abs(y)[-1])]
+
+	# Calculate the static gain
+	K = (y[-1] - y[0]) / (u - u_0) *  1./0.98
+	
+	# Check cases for derivative compensation
+
+	# No compensation
+	if not derivativeCompensation:
+
+		# Compute the average residence time 
+		Tar = 1./K * integrate.simps(y[-1] - y , time)
+
+		# Compute the lag
+		T = 1./K * np.exp(1) * integrate.simps(y[np.where(time < Tar)], time[np.where(time < Tar)])
+
+		# Compute the delay
+		L = Tar - T
+
+	# Compensation active
+	if derivativeCompensation:
+		
+		# Find the maximum of the array
+		i_max = np.argmax(abs(y))
+		
+		# Check if index is not zero
+		if i_max < 1:
+			raise Exception("Time resolution is not sufficiently. Please repeat experiment with higher resolution.")
+		
+		# Truncate the array for maximum
+		time_d = time[:i_max]
+		y_d = y[:i_max]
+
+		# Compute the scaled gain
+		K_S = (y_d[-1]-y_d[0]) / (u - u_0)
+
+		# Compute the average residence time
+		Tar = 1./K_S * integrate.simps(y_d[-1]-y_d , time_d)
+
+		# Compute the lag
+		T = 1./K_S * integrate.simps(y_d[np.where(time_d <= Tar)], time_d[np.where(time_d <= Tar)])
+
+		# Compute the delay
+		L = Tar-T
+
+	# Return the model parameter
+	return K, T, L
+
+def AREA_BASED_APPROXIMATION(K,T,L,D):
+	""" 
+	Approximate the sum of a first order plus time delay system when a static decoupler is used based on time integration. 
+
+	Leverages the fact that:
+
+	K * ( T + L ) = \int_0^inf ( y(inf) - y(t) ) dt
+
+	Inputs:
+	K : List of Lists of Floats or Numpy Array, Gain of the FOTD model.
+	T : List of Lists of Floats or Numpy Array, Lag of the FOTD model.
+	L : List of Lists of Floats or Numpy Array, Delay of the FOTD model.
+	D : List of Lists of Floats or Numpy Array, Static decoupler applied to the system.
+	
+	Returns:
+	K : Numpy Array, New gain of the system
+	T : Numpy Array, New lag of the system
+	L : Numpy Array, New delay of the system
+	"""
+
+	# Check if K, T and L are numpy arrays and convert if necessary
+	if type(K) != np.ndarray:
+		K = np.array(K)
+	if type(T) != np.ndarray:
+		T = np.array(T)
+	if type(L) != np.ndarray:
+		L = np.array(L)
+	if type(D) != np.ndarray:
+		D = np.array(D)
+
+	# Check the parameter array sizes
+		if (K.shape != T.shape) or (K.shape != L.shape) or (K.shape != D.shape) :
+			raise Exception("Shape of the parameter arrays is not equal. Please check the parameter inputs.")
+
+	# Compute the new system parameter
+
+	# New gain,  Strictly linear algebra, K+ = K*D
+	K_M = np.dot(K,D)
+
+	# New delay, use the external time delay so that L+ = min(L)
+	L_M = np.diag(np.min(np.transpose(L), axis = 0))
+
+	# New lag, use the fact that T+ + L+ = inv(K+) * (K x (T+L))*D, where x is element wise multiplication / Hadamard product
+	T_M = np.dot( np.linalg.inv(K_M) , np.dot( np.multiply( K , np.add(T, L ) ) , D ) ) - L_M
+
+	return K_M, T_M, L_M 
 
 #########################################################################################
 # Simulation Setup via Dymola
 #########################################################################################
 
-
+def fotd(k,t,l, time):
+    y = []
+    for times in time:
+        if times <= l:
+            y.append(0)
+        else:
+            y.append(k*(1-np.exp(-(times-l)/t)))
+    return np.array(y), np.array(time)
 
 
 
