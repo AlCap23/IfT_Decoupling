@@ -9,9 +9,12 @@
 import numpy as np 
 # Import integration from scipy
 import scipy.integrate as integrate
+# Import pandas for Data storage
+import pandas as pd
 # Import the dymola interface for simulation
 from dymola.dymola_interface import DymolaInterface 
-
+# Import modelicares for result files
+import modelicares as mres
 
 
 ########################################################################################
@@ -428,15 +431,56 @@ def AREA_BASED_APPROXIMATION(K,T,L,D):
 # Simulation Setup via Dymola
 #########################################################################################
 
-def fotd(k,t,l, time):
-    y = []
-    for times in time:
-        if times <= l:
-            y.append(0)
-        else:
-            y.append(k*(1-np.exp(-(times-l)/t)))
-    return np.array(y), np.array(time)
+def Stability(y,y_r):
+	"""
+	Simple function to check stability. Takes the systems output y and its set point y_r.
+	Calculates the error. If the absolute error is increasing, the system is unstable.
 
+	Inputs:
+	y : Numpy Array, Systems output
+	y_r : Numpy Array, Systems set point
+
+	Returns:
+	True, if system is not stable
+	"""
+
+	return np.all(np.abs(y_r-y)[:,1:] - np.abs(y_r-y)[:,:-1] > 0 )
+
+def Simulate_FOPTD(k,t,l, time):
+	"""
+	Simple simulator for a first order plus time delay;
+
+	g = K / (T*s+1) * e^( -L * s )
+
+	In the time domain corresponding to
+
+	y = K*( 1 - e^( -(t-L)/T ) ) * Heavyside(t-L)
+
+	Inputs:
+	k : Float, Gain of the FOPTD.
+	t : Float, Lag of the FOPTD.
+	l : Float, Delay of the FOPTD.
+	time : numpy array, contains the time values.
+
+	Returns:
+	y : numpy array, contains the outputs
+	"""
+
+	# Check the input data structure
+	if (type(k) != float ) or (type(t) != float) or (type(l) != float):
+		raise Exception("Model parameter must be of type float.")
+	if type(time) != np.ndarray:
+		raise Exception("Time must be of type np.ndarray.")
+	# Check if time is strictly increasing
+	if not np.all(np.diff(time) > 0):
+		raise Exception("Time must be strictly monotonic increasing!")
+	y = []
+	for times in time:
+		if times < l:
+			y.append(0)
+		else:
+			y.append(k*(1-np.exp(-(times-l)/t)))
+	return np.array(y)
 
 
 def Initialize_Simulation(Path, Show = False):
@@ -530,4 +574,34 @@ def Run_Simulation(Model_Instance, Parameter):
 
 	return
 
+def Simulation_Results(Path):
+	"""
+	Import the result file from a dymola simulation.
+	Returns the values for y1, y2, u1, u2, IAE1, IAE2, IE1, IE2 and time in a pandas datafram.
 
+	Input:
+	Path : String, Relative path to results.
+
+	Return:
+	Results : Pandas Dataframe
+	"""
+
+	# Load the Results
+	res, lins = mres.load(Path)
+
+	# Get the Data    
+	y1 = res["y_1"].values()[0]
+	u1 = res["u_1"].values()[0]
+	y2 = res["y_2"].values()[0]
+	u2 = res["u_2"].values()[0]
+	IAE1 = res["IAE_1.y"].values()[0]
+	IAE2 = res["IAE_2.y"].values()[0]
+	IE1 = res["IE_1.y"].values()[0]
+	IE2 = res["IE_2.y"].values()[0]
+	time = res["Time"].values()[0]
+
+	# Make a dict
+	data = {"time" : time ,"y1" : y1,"y2" : y2,"u1" : u1,"u2" : u2,"IAE1" : IAE1,"IAE2" : IAE2,"IE1" : IE1, "IE2": IE2}
+	# Make a Dataframe
+	Results = pd.DataFrame(data = data)
+	return Results

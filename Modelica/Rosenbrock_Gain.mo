@@ -632,7 +632,7 @@ package Rosenbrock_Gain
     connect(e_22.y, C_22.u) annotation (
       Line(points={{-111,-110},{-83,-110},{-83,-110},{-82,-110}},          color = {0, 0, 127}));
     connect(IAE_1.u, abs_e1.y) annotation (
-      Line(points={{-158,10},{-142,10},{-142,10},{-141,10},{-141,10}},            color = {0, 0, 127}));
+      Line(points={{-158,10},{-142,10},{-141,10}},                                color = {0, 0, 127}));
     connect(abs_e1.u, e_11.y) annotation (
       Line(points={{-118,10},{-100,10},{-100,50},{-111,50}},          color = {0, 0, 127}));
     connect(e_11.y, C_11.u) annotation (
@@ -646,7 +646,7 @@ package Rosenbrock_Gain
     connect(K_22.y, G_22.u) annotation (Line(points={{21,-110},{49.5,-110},{78,
             -110}}, color={0,0,127}));
     connect(G_11.y, y_1)
-      annotation (Line(points={{101,50},{150,50},{150,50}}, color={0,0,127}));
+      annotation (Line(points={{101,50},{150,50}},          color={0,0,127}));
     connect(y_2, G_22.y) annotation (Line(points={{150,-110},{101,-110},{101,
             -110}}, color={0,0,127}));
     connect(r_11.y, u_1) annotation (Line(points={{-139,50},{-136,50},{-136,90},
@@ -662,17 +662,21 @@ package Rosenbrock_Gain
         StopTime=800,
         Interval=1,
         Tolerance=1e-010),
-      __Dymola_experimentSetupOutput(
-        states=false,
-        derivatives=false,
-        inputs=false,
-        auxiliaries=false),
+      __Dymola_experimentSetupOutput,
       __Dymola_experimentFlags(
         Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+
         Evaluate=false,
         OutputCPUtime=false,
         OutputFlatModelica=false));
   end Ideal;
   annotation (
-    uses(Modelica(version = "3.2.2")));
+    uses(Modelica(version = "3.2.2")),
+    experiment,
+    __Dymola_experimentSetupOutput(doublePrecision=true),
+    __Dymola_experimentFlags(
+      Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+      Evaluate=false,
+      OutputCPUtime=false,
+      OutputFlatModelica=false));
 end Rosenbrock_Gain;
