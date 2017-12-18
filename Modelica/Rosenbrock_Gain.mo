@@ -1,4 +1,105 @@
 package Rosenbrock_Gain
+  model Ideal
+    Modelica.Blocks.Continuous.PI C_11(T = 0.607, k = 2.824) annotation (
+      Placement(visible = true, transformation(origin = {-70, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Continuous.PI C_22(T = 0.607, k = 2.824) annotation (
+      Placement(visible = true, transformation(origin = {-70, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Continuous.TransferFunction G_11(a = {1, 1}, b = {1}) annotation (
+      Placement(visible = true, transformation(origin = {90, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Continuous.TransferFunction G_22(a = {1, 1}, b = {1}) annotation (
+      Placement(visible = true, transformation(origin = {90, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Feedback e_11 annotation (
+      Placement(visible = true, transformation(origin = {-120, 50}, extent = {{10, -10}, {-10, 10}}, rotation = 180)));
+    Modelica.Blocks.Math.Feedback e_22 annotation (
+      Placement(visible = true, transformation(origin = {-120, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Abs abs_e1 annotation (
+      Placement(visible = true, transformation(origin = {-130, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+    Modelica.Blocks.Math.Abs abs_e2 annotation (
+      Placement(visible = true, transformation(origin = {-130, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+    Modelica.Blocks.Continuous.Integrator IAE_2 annotation (
+      Placement(visible = true, transformation(origin = {-170, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+    Modelica.Blocks.Continuous.Integrator IAE_1 annotation (
+      Placement(visible = true, transformation(origin = {-170, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+    Modelica.Blocks.Continuous.Integrator IE_2 annotation (
+      Placement(visible = true, transformation(origin = {-150, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+    Modelica.Blocks.Continuous.Integrator IE_1 annotation (
+      Placement(visible = true, transformation(origin = {-150, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+  Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
+      Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
+      startTime=50)                                                                             annotation (
+      Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Gain K_11(k=6.8)
+      annotation (Placement(transformation(extent={{0,40},{20,60}})));
+    Modelica.Blocks.Math.Gain K_22(k=6.8)
+      annotation (Placement(transformation(extent={{0,-120},{20,-100}})));
+    Modelica.Blocks.Interfaces.RealOutput y_1
+      annotation (Placement(transformation(extent={{140,40},{160,60}})));
+    Modelica.Blocks.Interfaces.RealOutput y_2
+      annotation (Placement(transformation(extent={{140,-120},{160,-100}})));
+    Modelica.Blocks.Interfaces.RealOutput u_1
+      annotation (Placement(transformation(extent={{-120,80},{-100,100}})));
+    Modelica.Blocks.Interfaces.RealOutput u_2
+      annotation (Placement(transformation(extent={{-120,-180},{-100,-160}})));
+  equation
+    connect(r_22.y, e_22.u1) annotation (
+      Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
+    connect(r_11.y, e_11.u1) annotation (
+      Line(points={{-139,50},{-128,50},{-128,50},{-128,50}},          color = {0, 0, 127}));
+    connect(G_22.y, e_22.u2) annotation (
+      Line(points={{101,-110},{120,-110},{120,-140},{-120,-140},{-120,-118},{
+            -120,-118}},                                                                               color = {0, 0, 127}));
+    connect(G_11.y, e_11.u2) annotation (
+      Line(points={{101,50},{120,50},{120,80},{-120,80},{-120,58},{-120,58}},              color = {0, 0, 127}));
+    connect(IE_2.u, e_22.y) annotation (
+      Line(points={{-138,-50},{-100,-50},{-100,-110},{-111,-110},{-111,-110}},            color = {0, 0, 127}));
+    connect(IE_1.u, e_11.y) annotation (
+      Line(points={{-138,-10},{-100,-10},{-100,50},{-111,50},{-111,50}},            color = {0, 0, 127}));
+    connect(IAE_2.u, abs_e2.y) annotation (
+      Line(points={{-158,-70},{-140,-70},{-140,-70},{-141,-70}},          color = {0, 0, 127}));
+    connect(abs_e2.u, e_22.y) annotation (
+      Line(points={{-118,-70},{-100,-70},{-100,-110},{-111,-110},{-111,-110}},            color = {0, 0, 127}));
+    connect(e_22.y, C_22.u) annotation (
+      Line(points={{-111,-110},{-83,-110},{-83,-110},{-82,-110}},          color = {0, 0, 127}));
+    connect(IAE_1.u, abs_e1.y) annotation (
+      Line(points={{-158,10},{-142,10},{-141,10}},                                color = {0, 0, 127}));
+    connect(abs_e1.u, e_11.y) annotation (
+      Line(points={{-118,10},{-100,10},{-100,50},{-111,50}},          color = {0, 0, 127}));
+    connect(e_11.y, C_11.u) annotation (
+      Line(points={{-111,50},{-84,50},{-84,50},{-82,50}},          color = {0, 0, 127}));
+    connect(K_11.u, C_11.y)
+      annotation (Line(points={{-2,50},{-59,50}}, color={0,0,127}));
+    connect(K_11.y, G_11.u)
+      annotation (Line(points={{21,50},{49.5,50},{78,50}}, color={0,0,127}));
+    connect(K_22.u, C_22.y)
+      annotation (Line(points={{-2,-110},{-59,-110}}, color={0,0,127}));
+    connect(K_22.y, G_22.u) annotation (Line(points={{21,-110},{49.5,-110},{78,
+            -110}}, color={0,0,127}));
+    connect(G_11.y, y_1)
+      annotation (Line(points={{101,50},{150,50}},          color={0,0,127}));
+    connect(y_2, G_22.y) annotation (Line(points={{150,-110},{101,-110},{101,
+            -110}}, color={0,0,127}));
+    connect(r_11.y, u_1) annotation (Line(points={{-139,50},{-136,50},{-136,90},
+            {-110,90}}, color={0,0,127}));
+    connect(u_2, e_22.u1) annotation (Line(points={{-110,-170},{-134,-170},{
+            -134,-110},{-128,-110}}, color={0,0,127}));
+    annotation (
+      __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
+      Icon(coordinateSystem(extent = {{-300, -300}, {300, 300}})),
+      Diagram(coordinateSystem(extent = {{-300, -300}, {300, 300}})),
+      __OpenModelica_commandLineOptions = "",
+  experiment(
+        StopTime=800,
+        Interval=1,
+        Tolerance=1e-010),
+      __Dymola_experimentSetupOutput,
+      __Dymola_experimentFlags(
+        Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
+        Evaluate=false,
+        OutputCPUtime=false,
+        OutputFlatModelica=false));
+  end Ideal;
+
   model Decentralized
     Modelica.Blocks.Continuous.PI C_11(T = 0.607, k = 2.824) annotation (
       Placement(visible = true, transformation(origin = {-70, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -298,9 +399,10 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin={144,-110},   extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Continuous.TransferFunction D_11 annotation (
       Placement(visible = true, transformation(origin = {-10, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.TransferFunction D_12(a = {1, 3}, b = {-2, -2}) annotation (
+    Modelica.Blocks.Continuous.TransferFunction D_12(            b = {-2, -2}, a={3,9})
+                                                                               annotation (
       Placement(visible = true, transformation(origin = {-10, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.TransferFunction D_21(a = {1}, b = {-1}) annotation (
+    Modelica.Blocks.Continuous.TransferFunction D_21(a = {1}, b={0})    annotation (
       Placement(visible = true, transformation(origin = {-10, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Continuous.TransferFunction D_22 annotation (
       Placement(visible = true, transformation(origin = {-10, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -374,8 +476,7 @@ package Rosenbrock_Gain
       Line(points={{1,-110},{5,-110},{5,-110},{9,-110},{9,-116},{27,-116},{27,
             -117},{27,-116},{28,-116}},                                                                                      color = {0, 0, 127}));
     connect(D_21.y, u_22.u1) annotation (
-      Line(points={{1,-70},{10,-70},{10,-70},{21,-70},{21,-104},{27,-104},{27,
-            -104},{27,-104},{28,-104}},                                                                                      color = {0, 0, 127}));
+      Line(points={{1,-70},{10,-70},{21,-70},{21,-104},{27,-104},{28,-104}},                                                 color = {0, 0, 127}));
     connect(C_22.y, D_22.u) annotation (
       Line(points = {{-57, -110}, {-22, -110}}, color = {0, 0, 127}));
     connect(D_21.u, C_11.y) annotation (
@@ -391,7 +492,7 @@ package Rosenbrock_Gain
     connect(y_11.y, e_11.u2) annotation (
       Line(points={{195,50},{206,50},{206,80},{-66,80},{-66,58},{-120,58}},                color = {0, 0, 127}));
     connect(D_12.y, u_11.u2) annotation (
-      Line(points={{1,10},{20,10},{20,44},{30,44},{30,44}},            color = {0, 0, 127}));
+      Line(points={{1,10},{20,10},{20,44},{30,44}},                    color = {0, 0, 127}));
     connect(G_11.y, y_11.u1) annotation (
       Line(points={{155,50},{160,50},{160,56},{172,56}},                     color = {0, 0, 127}));
     connect(D_11.y, u_11.u1) annotation (
@@ -427,9 +528,11 @@ package Rosenbrock_Gain
   end Dynamic_Decoupling;
 
   model CentralizedPID
-    Modelica.Blocks.Continuous.PI C_11(T = 0.3, k = 1) annotation (
+    Modelica.Blocks.Continuous.PI C_11(         k = 1, T=1/3)
+                                                       annotation (
       Placement(visible = true, transformation(origin = {-30, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.PI C_22(T = 0.3, k = 1) annotation (
+    Modelica.Blocks.Continuous.PI C_22(         k = 1, T=1/3)
+                                                       annotation (
       Placement(visible = true, transformation(origin = {-30, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Continuous.TransferFunction G_11(a = {1, 1}, b = {1}) annotation (
       Placement(visible = true, transformation(origin={184,54},   extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -459,9 +562,11 @@ package Rosenbrock_Gain
       Placement(visible = true, transformation(origin = {-170, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
     Modelica.Blocks.Continuous.Integrator IAE_2 annotation (
       Placement(visible = true, transformation(origin = {-170, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Continuous.PI C_12(T = 1, k = -2) annotation (
+    Modelica.Blocks.Continuous.PI C_12(       k = -2, T=1/3)
+                                                      annotation (
       Placement(visible = true, transformation(origin = {-30, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.PI C_21(T = 0.3, k = -1) annotation (
+    Modelica.Blocks.Continuous.PI C_21(         k = -1, T=1/3)
+                                                        annotation (
       Placement(visible = true, transformation(origin = {-30, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Gain ki_11(k=0.1715) annotation (
       Placement(visible = true, transformation(origin = {-70, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -486,9 +591,9 @@ package Rosenbrock_Gain
     Modelica.Blocks.Interfaces.RealOutput y_2
       annotation (Placement(transformation(extent={{242,-54},{262,-34}})));
     Modelica.Blocks.Interfaces.RealOutput u_1
-      annotation (Placement(transformation(extent={{-280,-6},{-260,14}})));
+      annotation (Placement(transformation(extent={{-94,96},{-74,116}})));
     Modelica.Blocks.Interfaces.RealOutput u_2
-      annotation (Placement(transformation(extent={{-266,-40},{-246,-20}})));
+      annotation (Placement(transformation(extent={{-118,-176},{-98,-156}})));
   equation
     connect(r_22.y, e_22.u1) annotation (
       Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
@@ -505,8 +610,7 @@ package Rosenbrock_Gain
     connect(C_12.u, ki_22.y) annotation (
       Line(points = {{-42, 10}, {-56, 10}, {-56, -110}, {-59, -110}}, color = {0, 0, 127}));
     connect(C_21.y, u_22.u1) annotation (
-      Line(points={{-19,-70},{1,-70},{1,-104},{29,-104},{29,-104},{28,-104},{28,
-            -104}},                                                                                    color = {0, 0, 127}));
+      Line(points={{-19,-70},{1,-70},{1,-104},{29,-104},{28,-104}},                                    color = {0, 0, 127}));
     connect(C_21.u, ki_11.y) annotation (
       Line(points={{-42,-70},{-52,-70},{-52,50},{-59,50}},          color = {0, 0, 127}));
     connect(IAE_2.u, abs_e2.y) annotation (
@@ -524,8 +628,7 @@ package Rosenbrock_Gain
     connect(G_21.y, y_22.u1) annotation (
       Line(points={{195,14},{206,14},{206,-100},{212,-100}},          color = {0, 0, 127}));
     connect(C_22.y, u_22.u2) annotation (
-      Line(points={{-19,-110},{-5,-110},{-5,-110},{9,-110},{9,-116},{29,-116},{
-            29,-116},{28,-116},{28,-116}},                                                                                       color = {0, 0, 127}));
+      Line(points={{-19,-110},{-5,-110},{9,-110},{9,-116},{29,-116},{28,-116}},                                                  color = {0, 0, 127}));
     connect(G_12.y, y_11.u2) annotation (
       Line(points={{195,-66},{202,-66},{202,48},{212,48}},          color = {0, 0, 127}));
     connect(ki_11.y, C_11.u) annotation (
@@ -533,9 +636,9 @@ package Rosenbrock_Gain
     connect(ki_11.u, e_11.y) annotation (
       Line(points={{-82,50},{-110,50},{-111,50}},                    color = {0, 0, 127}));
     connect(C_11.y, u_11.u1) annotation (
-      Line(points={{-19,50},{8,50},{8,56},{30,56},{30,56}},            color = {0, 0, 127}));
+      Line(points={{-19,50},{8,50},{8,56},{30,56}},                    color = {0, 0, 127}));
     connect(C_12.y, u_11.u2) annotation (
-      Line(points={{-19,10},{8,10},{8,44},{30,44},{30,44}},            color = {0, 0, 127}));
+      Line(points={{-19,10},{8,10},{8,44},{30,44}},                    color = {0, 0, 127}));
     connect(IAE_1.u, abs_e1.y) annotation (
       Line(points={{-158,10},{-142,10},{-142,10},{-141,10}},          color = {0, 0, 127}));
     connect(abs_e1.u, e_11.y) annotation (
@@ -560,116 +663,17 @@ package Rosenbrock_Gain
             246,54},{246,84},{-26,84},{-26,58},{-120,58}}, color={0,0,127}));
     connect(y_2, y_22.y) annotation (Line(points={{252,-44},{240,-44},{240,-106},
             {235,-106}}, color={0,0,127}));
-    connect(u_2, e_22.u1) annotation (Line(points={{-256,-30},{-256,-152},{-128,
-            -152},{-128,-110}}, color={0,0,127}));
-    connect(u_1, e_11.u1) annotation (Line(points={{-270,4},{-232,4},{-232,86},
-            {-208,86},{-208,80},{-128,80},{-128,50}}, color={0,0,127}));
+    connect(u_2, e_22.u1) annotation (Line(points={{-108,-166},{-128,-166},{
+            -128,-152},{-128,-110}},
+                                color={0,0,127}));
+    connect(u_1, e_11.u1) annotation (Line(points={{-84,106},{-108,106},{-108,
+            104},{-132,104},{-132,86},{-208,86},{-208,80},{-128,80},{-128,50}},
+                                                      color={0,0,127}));
     annotation (
       __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
       experiment(StartTime = 0, StopTime = 800, Tolerance = 1e-10, Interval = 1));
   end CentralizedPID;
 
-  model Ideal
-    Modelica.Blocks.Continuous.PI C_11(T = 0.607, k = 2.824) annotation (
-      Placement(visible = true, transformation(origin = {-70, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.PI C_22(T = 0.607, k = 2.824) annotation (
-      Placement(visible = true, transformation(origin = {-70, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.TransferFunction G_11(a = {1, 1}, b = {1}) annotation (
-      Placement(visible = true, transformation(origin = {90, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Continuous.TransferFunction G_22(a = {1, 1}, b = {1}) annotation (
-      Placement(visible = true, transformation(origin = {90, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Math.Feedback e_11 annotation (
-      Placement(visible = true, transformation(origin = {-120, 50}, extent = {{10, -10}, {-10, 10}}, rotation = 180)));
-    Modelica.Blocks.Math.Feedback e_22 annotation (
-      Placement(visible = true, transformation(origin = {-120, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Math.Abs abs_e1 annotation (
-      Placement(visible = true, transformation(origin = {-130, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Math.Abs abs_e2 annotation (
-      Placement(visible = true, transformation(origin = {-130, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Continuous.Integrator IAE_2 annotation (
-      Placement(visible = true, transformation(origin = {-170, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Continuous.Integrator IAE_1 annotation (
-      Placement(visible = true, transformation(origin = {-170, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Continuous.Integrator IE_2 annotation (
-      Placement(visible = true, transformation(origin = {-150, -50}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-    Modelica.Blocks.Continuous.Integrator IE_1 annotation (
-      Placement(visible = true, transformation(origin = {-150, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
-  Modelica.Blocks.Sources.Pulse r_11(amplitude = 1, period = 200, width = 50)  annotation (
-      Placement(visible = true, transformation(origin = {-150, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Blocks.Sources.Pulse r_22(amplitude = 1, period = 200,                  width = 50,
-      startTime=50)                                                                             annotation (
-      Placement(visible = true, transformation(origin = {-150, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    Modelica.Blocks.Math.Gain K_11(k=6.8)
-      annotation (Placement(transformation(extent={{0,40},{20,60}})));
-    Modelica.Blocks.Math.Gain K_22(k=6.8)
-      annotation (Placement(transformation(extent={{0,-120},{20,-100}})));
-    Modelica.Blocks.Interfaces.RealOutput y_1
-      annotation (Placement(transformation(extent={{140,40},{160,60}})));
-    Modelica.Blocks.Interfaces.RealOutput y_2
-      annotation (Placement(transformation(extent={{140,-120},{160,-100}})));
-    Modelica.Blocks.Interfaces.RealOutput u_1
-      annotation (Placement(transformation(extent={{-120,80},{-100,100}})));
-    Modelica.Blocks.Interfaces.RealOutput u_2
-      annotation (Placement(transformation(extent={{-120,-180},{-100,-160}})));
-  equation
-    connect(r_22.y, e_22.u1) annotation (
-      Line(points={{-139,-110},{-128,-110}},                                  color = {0, 0, 127}));
-    connect(r_11.y, e_11.u1) annotation (
-      Line(points={{-139,50},{-128,50},{-128,50},{-128,50}},          color = {0, 0, 127}));
-    connect(G_22.y, e_22.u2) annotation (
-      Line(points={{101,-110},{120,-110},{120,-140},{-120,-140},{-120,-118},{
-            -120,-118}},                                                                               color = {0, 0, 127}));
-    connect(G_11.y, e_11.u2) annotation (
-      Line(points={{101,50},{120,50},{120,80},{-120,80},{-120,58},{-120,58}},              color = {0, 0, 127}));
-    connect(IE_2.u, e_22.y) annotation (
-      Line(points={{-138,-50},{-100,-50},{-100,-110},{-111,-110},{-111,-110}},            color = {0, 0, 127}));
-    connect(IE_1.u, e_11.y) annotation (
-      Line(points={{-138,-10},{-100,-10},{-100,50},{-111,50},{-111,50}},            color = {0, 0, 127}));
-    connect(IAE_2.u, abs_e2.y) annotation (
-      Line(points={{-158,-70},{-140,-70},{-140,-70},{-141,-70}},          color = {0, 0, 127}));
-    connect(abs_e2.u, e_22.y) annotation (
-      Line(points={{-118,-70},{-100,-70},{-100,-110},{-111,-110},{-111,-110}},            color = {0, 0, 127}));
-    connect(e_22.y, C_22.u) annotation (
-      Line(points={{-111,-110},{-83,-110},{-83,-110},{-82,-110}},          color = {0, 0, 127}));
-    connect(IAE_1.u, abs_e1.y) annotation (
-      Line(points={{-158,10},{-142,10},{-141,10}},                                color = {0, 0, 127}));
-    connect(abs_e1.u, e_11.y) annotation (
-      Line(points={{-118,10},{-100,10},{-100,50},{-111,50}},          color = {0, 0, 127}));
-    connect(e_11.y, C_11.u) annotation (
-      Line(points={{-111,50},{-84,50},{-84,50},{-82,50}},          color = {0, 0, 127}));
-    connect(K_11.u, C_11.y)
-      annotation (Line(points={{-2,50},{-59,50}}, color={0,0,127}));
-    connect(K_11.y, G_11.u)
-      annotation (Line(points={{21,50},{49.5,50},{78,50}}, color={0,0,127}));
-    connect(K_22.u, C_22.y)
-      annotation (Line(points={{-2,-110},{-59,-110}}, color={0,0,127}));
-    connect(K_22.y, G_22.u) annotation (Line(points={{21,-110},{49.5,-110},{78,
-            -110}}, color={0,0,127}));
-    connect(G_11.y, y_1)
-      annotation (Line(points={{101,50},{150,50}},          color={0,0,127}));
-    connect(y_2, G_22.y) annotation (Line(points={{150,-110},{101,-110},{101,
-            -110}}, color={0,0,127}));
-    connect(r_11.y, u_1) annotation (Line(points={{-139,50},{-136,50},{-136,90},
-            {-110,90}}, color={0,0,127}));
-    connect(u_2, e_22.u1) annotation (Line(points={{-110,-170},{-134,-170},{
-            -134,-110},{-128,-110}}, color={0,0,127}));
-    annotation (
-      __OpenModelica_simulationFlags(lv = "LOG_STATS", s = "dassl"),
-      Icon(coordinateSystem(extent = {{-300, -300}, {300, 300}})),
-      Diagram(coordinateSystem(extent = {{-300, -300}, {300, 300}})),
-      __OpenModelica_commandLineOptions = "",
-  experiment(
-        StopTime=800,
-        Interval=1,
-        Tolerance=1e-010),
-      __Dymola_experimentSetupOutput,
-      __Dymola_experimentFlags(
-        Advanced(GenerateVariableDependencies=false, OutputModelicaCode=false),
-
-        Evaluate=false,
-        OutputCPUtime=false,
-        OutputFlatModelica=false));
-  end Ideal;
   annotation (
     uses(Modelica(version = "3.2.2")),
     experiment,

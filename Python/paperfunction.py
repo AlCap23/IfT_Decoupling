@@ -22,10 +22,50 @@ import modelicares as mres
 ########################################################################################
 
 
+def PI_TUNE(K,T,L, GainMargin = 3., PhaseMargin = np.pi/ 6., Minimal_Delay = 0.1):
+	"""
+	Computes the PI controller parameter based on the paper
+
+	Gain and Phase Margin Controler Tuning : FOPTD or IPDT model-based methods? Jones, Tham, 2004
+
+	Inputs:
+	K : Float, Gain of the FOTD model.
+	T : FLoat, Lag of the FOTD model.
+	L : Float, Delay of the FOTD model.
+	
+	Optional:
+	GainMargin : Float, Gain Margin of the open loop system. Default is 3.0
+	PhaseMargin: Float, Phase Margin of the open loop system in radians. Default is 30 deg or pi / 6
+
+	Returns:
+	K : List of controller Parameter, consisting of:
+		KP : Float, Proportional gain of the controller
+		KI : Float, Integral gain of the controller
+	"""
+
+	# Check for small delay
+	if L < Minimal_Delay*T:
+		if Minimal_Delay*T < 1e-2:
+			L = 1e-2
+		else:
+			L = Minimal_Delay*T
+	else:
+		L = L
+
+	# Compute the crossover frequency
+	wp = ( GainMargin*PhaseMargin + 1./2. * np.pi * GainMargin * ( GainMargin - 1. ) ) / ( ( GainMargin**2 -  1. ) * L )
+
+	# Compute the proportional gain
+	KP = wp * T / ( GainMargin * K )
+
+	# Compute the Integral gain
+	TI = 1. / ( 2. * wp - 4. * wp**2 * L / np.pi + 1./T )
+	KI = KP / TI 
+
+	return [KP, KI]
 
 
-
-def AMIGO_TUNE(K,T,L, structure = 'PI', Minimal_Delay = 0.3):
+def AMIGO_TUNE(K,T,L, structure = 'PI', Minimal_Delay = 0.1):
 	"""
 	Computes the PI(D) controller parameter based on AMIGO algorithm.
 	
@@ -254,8 +294,12 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	# Check if NUM and DEN are numpy array
 	if type(NUM) is not np.ndarray:
 		zeros = np.array(NUM)
+	else:
+		zeros = NUM
 	if type(DEN) is not np.ndarray:
 		poles = np.array(DEN)
+	else:
+		poles = DEN
 
 	# Sort the array of the poles in descending order
 	poles = np.sort(poles)[::-1]
@@ -265,16 +309,32 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 
 	# Get the zeros with a positive entry
 	z_P = zeros[np.where(zeros > 0.0 )]
-	
+
+	# Cancel out dynamics, approximately -> lose remainder
+	poles, remainder = np.polydiv(np.poly(poles), np.poly(z_P))
+	poles = np.roots(poles)
+	#print(poles)
+
 	# Get the delay
-	L_D = L + 0.5 * poles[1] + np.sum(np.abs(z_N))
+	if poles.shape[0] > 1:
+		L_D = L  + 0.5 * poles[1]  
+		if poles.shape[0]>2:
+			L_D = L_D +  np.sum(poles[1:])
+	else:
+		L_D = L
+	# Add the zeros
+	L_D = L_D  + np.sum(np.abs(z_N)) 
 	
 	# Get the lag
-	T = poles[0] + 0.5 * poles[1] + np.sum(poles[2::])
+	T = poles[0]
+	if poles.shape[0] > 1:
+		T = T + 0.5 * poles[1]
+		if poles.shape[0]>2:
+			T = T + np.sum(poles[2:])
 	
 	# Make model faster
-	if T - np.sum(z_P) > poles[0] :
-		T = T - np.sum(z_P)
+	#if T - np.sum(z_P) > 0 :
+	#	T = T - np.sum(z_P)
 	
 	return T, L_D
 
@@ -431,20 +491,23 @@ def AREA_BASED_APPROXIMATION(K,T,L,D):
 # Simulation Setup via Dymola
 #########################################################################################
 
-def Stability(y,y_r):
+def Stability(y,y_r, MaximumError = 20.):
 	"""
 	Simple function to check stability. Takes the systems output y and its set point y_r.
-	Calculates the error. If the absolute error is increasing, the system is unstable.
+	Calculates the error. If the absolute error is under a certain limit, the function returns true.
 
 	Inputs:
 	y : Numpy Array, Systems output
 	y_r : Numpy Array, Systems set point
 
+	Optional:
+	MaximumError : Float, Maximum absolut Error between y and y_r; Default is 20.
+
 	Returns:
-	True, if system is not stable
+	True, if system is stable
 	"""
 
-	return np.all(np.abs(y_r-y)[:,1:] - np.abs(y_r-y)[:,:-1] > 0 )
+	return np.allclose(y,y_r, atol = MaximumError)
 
 def Simulate_FOPTD(k,t,l, time):
 	"""
