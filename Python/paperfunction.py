@@ -692,7 +692,7 @@ def Simulation_Results(Path):
 	time = res["Time"].values()[0]
 
 	# Make a dict
-	data = {"time" : time ,"y1" : y1,"y2" : y2,"u1" : u1,"u2" : u2,"IAE1" : IAE1,"IAE2" : IAE2,"IE1" : IE1, "IE2": IE2}
+	data = {"time" : time ,"y_1" : y1,"y_2" : y2,"u_1" : u1,"u_2" : u2,"IAE1.y" : IAE1,"IAE2.y" : IAE2,"IE1.y" : IE1, "IE2.y": IE2}
 	# Make a Dataframe
 	Results = pd.DataFrame(data = data)
 	return Results
