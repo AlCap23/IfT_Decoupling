@@ -313,6 +313,7 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	# Cancel out dynamics, approximately -> lose remainder
 	poles, remainder = np.polydiv(np.poly(poles), np.poly(z_P))
 	poles = np.roots(poles)
+	poles = np.sort(poles)[::-1]
 	print(poles, remainder)
 
 	# Get the delay
@@ -326,17 +327,12 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	L_D = L_D  + np.sum(np.abs(z_N)) 
 	
 	# Get the lag
-	if poles.shape[0] == 1:
+	if poles.shape[0] >= 1:
 		T = poles[0]
-	elif poles.shape[0] > 1:
-		T = T + 0.5 * poles[1]
-		if poles.shape[0]>2:
-			T = T + np.sum(poles[2:])
-	else:
-		T = 0.
-	# Make model faster
-	#if T - np.sum(z_P) > 0 :
-	#	T = T - np.sum(z_P)
+		if poles.shape[0] > 1:
+			T = T + 0.5 * poles[1]
+			if poles.shape[0]>2:
+				T = T + np.sum(poles[2:])
 	
 	return T, L_D
 
@@ -698,7 +694,7 @@ def Simulation_Results(Path):
 	time = res["Time"].values()[0]
 
 	# Make a dict
-	data = {"time" : time ,"y_1" : y1,"y_2" : y2,"u_1" : u1,"u_2" : u2,"IAE1.y" : IAE1,"IAE2.y" : IAE2,"IE1.y" : IE1, "IE2.y": IE2}
+	data = {"time" : time ,"y_1" : y1,"y_2" : y2,"u_1" : u1,"u_2" : u2,"IAE_1.y" : IAE1,"IAE_2.y" : IAE2,"IE_1.y" : IE1, "IE_2.y": IE2}
 	# Make a Dataframe
 	Results = pd.DataFrame(data = data)
 	return Results
