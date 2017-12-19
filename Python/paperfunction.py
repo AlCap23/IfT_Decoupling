@@ -526,7 +526,7 @@ def Simulate_FOPTD(k,t,l, time):
 	time : numpy array, contains the time values.
 
 	Returns:
-	y : numpy array, contains the outputs
+	y : numpy array, contains the output
 	"""
 
 	# Check the input data structure
@@ -545,6 +545,34 @@ def Simulate_FOPTD(k,t,l, time):
 			y.append(k*(1-np.exp(-(times-l)/t)))
 	return np.array(y)
 
+def Time_Delay(l,y,time):
+	"""
+	Simulates a time delay via shifting the response.
+
+	Inputs:
+	l : Float, Time Delay
+	y : numpy array, Output of the delay free model
+	time : numpy array, contains the time values.
+
+	Outputs:
+	y : numpy array, output of the system with delay
+	time : numpy array, contains the time values. 
+	"""
+
+	# Check the input data structure
+	#if type(time) != np.ndarray:
+	#	raise Exception("Time must be of type np.ndarray.")
+	#if type(y) != np.ndarray:
+	#	raise Exception("y must be of type np.ndarray.")
+
+	# Shift the time
+	time = time + l
+	# Insert a zero at the beginning
+	time = np.insert(time, 0, 0.)
+	# Insert a zero for the output
+	y = np.insert(y, 0, 0.)
+
+	return y, time
 
 def Initialize_Simulation(Path, Show = False):
 	"""
