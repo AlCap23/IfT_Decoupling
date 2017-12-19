@@ -313,7 +313,7 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	# Cancel out dynamics, approximately -> lose remainder
 	poles, remainder = np.polydiv(np.poly(poles), np.poly(z_P))
 	poles = np.roots(poles)
-	#print(poles)
+	print(poles, remainder)
 
 	# Get the delay
 	if poles.shape[0] > 1:
@@ -326,12 +326,14 @@ def MODEL_TO_FOTD(NUM, DEN, L=0.0):
 	L_D = L_D  + np.sum(np.abs(z_N)) 
 	
 	# Get the lag
-	T = poles[0]
-	if poles.shape[0] > 1:
+	if poles.shape[0] == 1:
+		T = poles[0]
+	elif poles.shape[0] > 1:
 		T = T + 0.5 * poles[1]
 		if poles.shape[0]>2:
 			T = T + np.sum(poles[2:])
-	
+	else:
+		T = 0.
 	# Make model faster
 	#if T - np.sum(z_P) > 0 :
 	#	T = T - np.sum(z_P)
@@ -545,14 +547,15 @@ def Simulate_FOPTD(k,t,l, time):
 			y.append(k*(1-np.exp(-(times-l)/t)))
 	return np.array(y)
 
-def Time_Delay(l,y,time):
+def Time_Delay(l,y,time_x, time):
 	"""
 	Simulates a time delay via shifting the response.
 
 	Inputs:
 	l : Float, Time Delay
 	y : numpy array, Output of the delay free model
-	time : numpy array, contains the time values.
+	time_x : numpy array, contains the time values of the delay free output
+	time : numpy array, contains the time series for the delayed output
 
 	Outputs:
 	y : numpy array, output of the system with delay
@@ -566,11 +569,14 @@ def Time_Delay(l,y,time):
 	#	raise Exception("y must be of type np.ndarray.")
 
 	# Shift the time
-	time = time + l
+	time_x = time_x + l
 	# Insert a zero at the beginning
-	time = np.insert(time, 0, 0.)
+	time_x = np.insert(time_x, 0, 0.)
 	# Insert a zero for the output
 	y = np.insert(y, 0, 0.)
+
+	# Interpolation
+	y = np.interp(time, time_x, y)
 
 	return y, time
 
